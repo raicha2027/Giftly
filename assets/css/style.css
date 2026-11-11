@@ -1,0 +1,782 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    color: #35232c;
+    background: #ffffff;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.brand-panel {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 55px clamp(35px, 6vw, 85px);
+    background:
+        radial-gradient(circle at 75% 80%, rgba(255, 255, 255, .8), transparent 34%),
+        linear-gradient(145deg, #fff8f8 0%, #f8e9ed 52%, #f0dce3 100%);
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.brand-panel::before {
+    content: "";
+    position: absolute;
+    width: 440px;
+    height: 440px;
+    right: -220px;
+    top: -210px;
+    border: 1px solid rgba(126, 53, 81, .13);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.brand-panel::after {
+    content: "";
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    left: -210px;
+    bottom: -180px;
+    border: 1px solid rgba(126, 53, 81, .13);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.brand-content {
+    width: 100%;
+    max-width: 490px;
+    position: relative;
+    z-index: 5;
+}
+
+.brand-logo {
+    display: block;
+    width: 175px;
+    max-height: 95px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+.brand-message {
+    margin-top: 25px;
+    max-width: 450px;
+    transform: translateY(-35px);
+}
+
+.small-heading {
+    display: block;
+    color: #984b68;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3.5px;
+    margin-bottom: 22px;
+}
+
+.brand-message h1 {
+    font-family: 'Playfair Display', serif;
+    color: #632b43;
+    font-size: clamp(40px, 4.2vw, 59px);
+    line-height: 1.16;
+    font-weight: 600;
+    letter-spacing: -1.5px;
+    margin-bottom: 22px;
+}
+
+.brand-message p {
+    color: #846673;
+    font-size: 15px;
+    line-height: 1.9;
+    max-width: 365px;
+}
+
+.gift-showcase {
+    position: absolute;
+    right: 7%;
+    bottom: 22px;
+    width: 390px;
+    height: 285px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.gift-showcase::before {
+    content: "";
+    position: absolute;
+    width: 280px;
+    height: 125px;
+    left: 55px;
+    bottom: 5px;
+    background: rgba(255, 255, 255, .42);
+    border-radius: 50%;
+    filter: blur(30px);
+}
+
+.present {
+    position: absolute;
+    animation: giftFloat 4s ease-in-out infinite;
+}
+
+.present-large {
+    width: 138px;
+    height: 150px;
+    left: 125px;
+    bottom: 23px;
+    z-index: 4;
+}
+
+.present-medium {
+    width: 105px;
+    height: 112px;
+    right: 5px;
+    bottom: 12px;
+    z-index: 3;
+    animation-delay: .8s;
+}
+
+.present-small {
+    width: 88px;
+    height: 96px;
+    left: 25px;
+    bottom: 8px;
+    z-index: 2;
+    animation-delay: 1.3s;
+}
+
+.present-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 76%;
+    border-radius: 5px 5px 9px 9px;
+    background: linear-gradient(110deg, #9e4666 0%, #c36f8b 48%, #8e3658 100%);
+    box-shadow:
+        0 20px 30px rgba(105, 39, 65, .2),
+        inset 8px 0 12px rgba(255, 255, 255, .12),
+        inset -7px 0 12px rgba(65, 16, 38, .12);
+}
+
+.present-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 9px;
+    background: rgba(255, 255, 255, .22);
+    border-radius: 5px 5px 0 0;
+}
+
+.present-box::after {
+    content: "";
+    position: absolute;
+    top: 42%;
+    left: 0;
+    width: 100%;
+    height: 15%;
+    background: linear-gradient(90deg, #d5a65e, #fff0c9 48%, #c8954c);
+    box-shadow: 0 2px 5px rgba(91, 48, 26, .1);
+}
+
+.present-ribbon {
+    position: absolute;
+    left: 40%;
+    top: 0;
+    width: 20%;
+    height: 100%;
+    background: linear-gradient(90deg, #c8954c, #fff0c9 48%, #d5a65e);
+    z-index: 2;
+    box-shadow: 0 0 5px rgba(255, 238, 196, .25);
+}
+
+.present-lid {
+    position: absolute;
+    top: -13px;
+    left: -7%;
+    width: 114%;
+    height: 23px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #f8dce4, #d994aa 55%, #c67891);
+    box-shadow: 0 6px 12px rgba(83, 31, 52, .2);
+    transform-origin: 8% 100%;
+    animation: giftOpen 5s ease-in-out infinite;
+    z-index: 5;
+}
+
+.present-bow {
+    position: absolute;
+    width: 30px;
+    height: 22px;
+    top: -19px;
+    left: 32%;
+    border: 6px solid #e8c17e;
+    border-radius: 80% 80% 15% 80%;
+    transform: rotate(-35deg);
+}
+
+.present-bow::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 22px;
+    left: 15px;
+    top: -6px;
+    border: 6px solid #e8c17e;
+    border-radius: 80% 80% 80% 15%;
+    transform: rotate(70deg);
+}
+
+.present-glow {
+    position: absolute;
+    width: 165px;
+    height: 165px;
+    left: -13px;
+    top: -75px;
+    border-radius: 50%;
+    background: #fff5d9;
+    filter: blur(34px);
+    opacity: 0;
+    animation: giftGlow 5s ease-in-out infinite;
+}
+
+.present-star {
+    position: absolute;
+    color: #b8894f;
+    font-size: 25px;
+    opacity: 0;
+    animation: sparkle 2.8s ease-in-out infinite;
+}
+
+.star-one {
+    top: -47px;
+    right: -25px;
+}
+
+.star-two {
+    top: 28px;
+    left: -35px;
+    animation-delay: .7s;
+}
+
+.star-three {
+    top: -30px;
+    right: -20px;
+    animation-delay: 1.2s;
+}
+
+.star-four {
+    bottom: 45px;
+    left: -25px;
+    animation-delay: 1.7s;
+}
+
+.present-large::before {
+    content: "♥";
+    position: absolute;
+    z-index: 6;
+    left: 44%;
+    top: -10px;
+    color: #fff0d4;
+    font-size: 23px;
+    opacity: 0;
+    animation: heartSurprise 5s ease-in-out infinite;
+}
+
+.form-panel {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 65px 45px;
+    position: relative;
+}
+
+.login-content {
+    width: 100%;
+    max-width: 410px;
+}
+
+.top-label {
+    color: #9a526d;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    margin-bottom: 18px;
+}
+
+.login-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 600;
+    color: #3e2632;
+    letter-spacing: -.7px;
+    margin-bottom: 12px;
+}
+
+.description {
+    font-size: 14px;
+    color: #93838a;
+    margin-bottom: 40px;
+    line-height: 1.7;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    color: #49343e;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    width: 100%;
+    height: 55px;
+    border: 1px solid #eadde2;
+    border-radius: 9px;
+    padding: 0 17px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #35232c;
+    background: #fff;
+    outline: none;
+    transition: border-color .25s, box-shadow .25s, background .25s;
+}
+
+.form-group input::placeholder {
+    color: #b7aab0;
+}
+
+.form-group input:focus {
+    border-color: #873c59;
+    background: #fffdfd;
+    box-shadow: 0 0 0 4px rgba(135, 60, 89, .08);
+}
+
+.password-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.password-heading a {
+    color: #923d5b;
+    font-size: 12px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.password-heading a:hover {
+    color: #542037;
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 12px;
+    color: #796a72;
+    margin-bottom: 30px;
+    cursor: pointer;
+}
+
+.remember input {
+    width: 15px;
+    height: 15px;
+    accent-color: #803650;
+    cursor: pointer;
+}
+
+.login-button {
+    width: 100%;
+    height: 55px;
+    background: linear-gradient(110deg, #803650, #64263f);
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 9px 20px rgba(112, 45, 73, .16);
+    transition: background .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+
+.login-button:hover {
+    background: linear-gradient(110deg, #692941, #4f1d34);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(112, 45, 73, .23);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.register-text {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 13px;
+    color: #8b7c83;
+}
+
+.register-text a {
+    color: #873c59;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.register-text a:hover {
+    color: #542037;
+}
+
+.form-footer {
+    position: absolute;
+    bottom: 28px;
+    font-size: 11px;
+    color: #b0a3a9;
+}
+
+@keyframes giftFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes giftOpen {
+
+    0%,
+    28%,
+    100% {
+        transform: rotate(0deg) translateY(0);
+    }
+
+    40%,
+    65% {
+        transform: rotate(-38deg) translateY(-18px);
+    }
+}
+
+@keyframes giftGlow {
+
+    0%,
+    28%,
+    100% {
+        opacity: 0;
+        transform: scale(.6);
+    }
+
+    42%,
+    65% {
+        opacity: .85;
+        transform: scale(1.25);
+    }
+}
+
+@keyframes sparkle {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: scale(.3) rotate(0deg);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15) rotate(35deg);
+    }
+}
+
+@keyframes heartSurprise {
+
+    0%,
+    35%,
+    100% {
+        opacity: 0;
+        transform: translateY(20px) scale(.3);
+    }
+
+    45% {
+        opacity: 1;
+        transform: translateY(-35px) scale(1.2);
+    }
+
+    65% {
+        opacity: 0;
+        transform: translateY(-75px) scale(.8);
+    }
+}
+
+@media (max-width: 1000px) {
+    .brand-panel {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+    .gift-showcase {
+        right: 0;
+        transform: scale(.82);
+        transform-origin: bottom right;
+    }
+
+    .brand-message h1 {
+        font-size: 43px;
+    }
+}
+
+@media (max-width: 850px) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .brand-panel {
+        min-height: 490px;
+        padding: 35px 40px;
+    }
+
+    .brand-content {
+        max-width: 520px;
+    }
+
+    .brand-logo {
+        width: 145px;
+        max-height: 75px;
+    }
+
+    .brand-message {
+        margin-top: 35px;
+        max-width: 390px;
+    }
+
+    .brand-message h1 {
+        font-size: 39px;
+    }
+
+    .brand-message p {
+        font-size: 13px;
+        max-width: 300px;
+    }
+
+    .gift-showcase {
+        right: 5%;
+        bottom: 0;
+        transform: scale(.68);
+        transform-origin: bottom right;
+    }
+
+    .form-panel {
+        min-height: 650px;
+        padding: 65px 30px 85px;
+    }
+}
+
+@media (max-width: 550px) {
+    .brand-panel {
+        min-height: 430px;
+        padding: 28px 25px;
+    }
+
+    .brand-message {
+        margin-top: 32px;
+        max-width: 290px;
+    }
+
+    .brand-message h1 {
+        font-size: 34px;
+    }
+
+    .brand-message p {
+        font-size: 12px;
+        line-height: 1.7;
+        max-width: 250px;
+    }
+
+    .small-heading {
+        font-size: 9px;
+        letter-spacing: 2.5px;
+        margin-bottom: 15px;
+    }
+
+    .gift-showcase {
+        right: -35px;
+        bottom: -25px;
+        transform: scale(.48);
+        transform-origin: bottom right;
+        opacity: .9;
+    }
+
+    .form-panel {
+        min-height: 620px;
+        padding: 60px 24px 80px;
+    }
+
+    .login-content h2 {
+        font-size: 34px;
+    }
+
+    .description {
+        margin-bottom: 32px;
+    }
+
+    .form-footer {
+        bottom: 22px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .present,
+    .present-lid,
+    .present-glow,
+    .present-star,
+    .present-large::before {
+        animation: none;
+    }
+
+    .flower-arrangement {
+        position: absolute;
+        left: -25px;
+        bottom: 20px;
+        width: 115px;
+        height: 190px;
+        z-index: 5;
+    }
+
+    .flower {
+        position: absolute;
+        width: 55px;
+        height: 150px;
+        transform-origin: bottom center;
+    }
+
+    .flower-one {
+        left: 5px;
+        bottom: 0;
+        transform: rotate(-15deg);
+    }
+
+    .flower-two {
+        left: 43px;
+        bottom: 0;
+        transform: rotate(12deg);
+    }
+
+    .flower-three {
+        left: 27px;
+        bottom: 5px;
+        transform: rotate(-2deg);
+    }
+
+    .flower-head {
+        position: absolute;
+        top: 0;
+        left: 8px;
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 50% 50%, #d5a34d 0 12%, transparent 13%),
+            radial-gradient(ellipse at 50% 15%, #fff 0 20%, transparent 22%),
+            radial-gradient(ellipse at 85% 50%, #f6b7c9 0 20%, transparent 22%),
+            radial-gradient(ellipse at 50% 85%, #fff 0 20%, transparent 22%),
+            radial-gradient(ellipse at 15% 50%, #f6b7c9 0 20%, transparent 22%);
+        filter: drop-shadow(0 3px 5px rgba(120, 54, 78, .15));
+    }
+
+    .flower-two .flower-head {
+        background:
+            radial-gradient(circle at 50% 50%, #d6a34c 0 12%, transparent 13%),
+            radial-gradient(ellipse at 50% 15%, #e8a2b8 0 21%, transparent 23%),
+            radial-gradient(ellipse at 85% 50%, #fff0f3 0 21%, transparent 23%),
+            radial-gradient(ellipse at 50% 85%, #e8a2b8 0 21%, transparent 23%),
+            radial-gradient(ellipse at 15% 50%, #fff0f3 0 21%, transparent 23%);
+    }
+
+    .flower-three .flower-head {
+        background:
+            radial-gradient(circle at 50% 50%, #c99645 0 12%, transparent 13%),
+            radial-gradient(ellipse at 50% 15%, #fff4df 0 21%, transparent 23%),
+            radial-gradient(ellipse at 85% 50%, #e8b5c5 0 21%, transparent 23%),
+            radial-gradient(ellipse at 50% 85%, #fff4df 0 21%, transparent 23%),
+            radial-gradient(ellipse at 15% 50%, #e8b5c5 0 21%, transparent 23%);
+    }
+
+    .flower-stem {
+        position: absolute;
+        top: 37px;
+        left: 27px;
+        width: 3px;
+        height: 112px;
+        background: linear-gradient(to bottom, #78916c, #476a50);
+        border-radius: 10px;
+    }
+
+    .flower-leaf {
+        position: absolute;
+        top: 82px;
+        left: 26px;
+        width: 23px;
+        height: 12px;
+        background: #779477;
+        border-radius: 100% 0 100% 0;
+        transform: rotate(-25deg);
+    }
+
+    .flower-leaf::after {
+        content: "";
+        position: absolute;
+        top: 25px;
+        left: -19px;
+        width: 22px;
+        height: 12px;
+        background: #91a58a;
+        border-radius: 0 100% 0 100%;
+        transform: rotate(35deg);
+    }
+
+    .present-small {
+        left: 75px;
+    }
+
+    .present-large {
+        left: 165px;
+    }
+
+    .present-medium {
+        right: 0;
+    }
+
+}
