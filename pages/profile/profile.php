@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../config/db.php';
 
 if (empty($_SESSION['customer_id'])) {
-    header('Location: customer/login.php');
+    header('Location: ../login/login.php');
     exit;
 }
 
@@ -106,7 +106,7 @@ $profile = $stmt->fetch();
 
 if (!$profile) {
     session_destroy();
-    header('Location: customer/login.php');
+    header('Location: ../login/login.php');
     exit;
 }
 
@@ -139,7 +139,7 @@ function h($value)
 <body>
 
     <header class="profile-header">
-        <a href="home.php" class="brand">Giftly</a>
+        <a href="../home/Home.php" class="brand">Giftly</a>
         <a href="../home/Home.php" class="back-link">Back to Store</a>
     </header>
 

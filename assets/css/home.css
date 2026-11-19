@@ -1,0 +1,462 @@
+﻿/* GIFTLY HOMEPAGE — restored visual styling */
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 16px 6%;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(41, 41, 41, .06);
+    position: relative;
+    z-index: 10;
+}
+
+.logo {
+    color: #e75480;
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.main-navigation,
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.main-navigation a,
+.header-actions a {
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    transition: color .2s ease;
+}
+
+.main-navigation a:hover,
+.header-actions a:hover {
+    color: #e75480;
+}
+
+.header-actions {
+    gap: 14px;
+}
+
+.cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.cart-count {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 50px;
+    background: #e75480;
+    color: white;
+    font-size: 12px;
+}
+
+.menu-toggle {
+    display: none;
+    padding: 9px 15px;
+    border: 1px solid #f3ccda;
+    border-radius: 22px;
+    background: #fff0f5;
+    color: #c94f76;
+    cursor: pointer;
+    font: inherit;
+}
+
+/* HERO */
+
+.hero-section {
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    padding: 75px 9%;
+    background:
+        radial-gradient(circle at 85% 20%, rgba(255,255,255,.85), transparent 27%),
+        linear-gradient(120deg, #fff0f5 0%, #f9dce7 55%, #f5c9d9 100%);
+}
+
+.hero-content {
+    width: 100%;
+    max-width: 680px;
+}
+
+.hero-subtitle {
+    margin-bottom: 17px;
+    color: #c94f76;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.hero-content h1 {
+    max-width: 650px;
+    margin-bottom: 20px;
+    color: #292929;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 5vw, 62px);
+    line-height: 1.15;
+}
+
+.hero-content > p:not(.hero-subtitle) {
+    max-width: 540px;
+    margin-bottom: 28px;
+    color: #666;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 5px 9px 5px 0;
+    padding: 13px 25px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    transition: .25s ease;
+}
+
+.primary-button {
+    background: #e75480;
+    color: #fff;
+}
+
+.primary-button:hover {
+    background: #cf3f6c;
+    transform: translateY(-2px);
+}
+
+.secondary-button {
+    border: 1px solid #e75480;
+    color: #c94f76;
+    background: rgba(255,255,255,.55);
+}
+
+.secondary-button:hover {
+    background: #fff;
+}
+
+/* GENERAL SECTIONS */
+
+.occasions-section,
+.categories-section,
+.featured-section {
+    padding: 65px 7%;
+    text-align: center;
+}
+
+.occasions-section {
+    background: #fff;
+}
+
+.categories-section {
+    background: #fff9fb;
+}
+
+.occasions-section > h2,
+.categories-section > h2,
+.featured-section > h2,
+.recommendation-section h2 {
+    margin-bottom: 12px;
+    color: #292929;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(27px, 3vw, 35px);
+}
+
+.occasions-section > p {
+    margin-bottom: 32px;
+    color: #777;
+    font-size: 15px;
+}
+
+.occasion-grid,
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+    margin-top: 32px;
+    text-align: center;
+}
+
+.occasion-card,
+.category-card {
+    overflow: hidden;
+    padding: 15px;
+    border: 1px solid #f7e5ec;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 3px 14px rgba(41, 41, 41, .05);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.occasion-card:hover,
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 9px 24px rgba(231, 84, 128, .13);
+}
+
+.occasion-card img,
+.category-card img {
+    display: block;
+    width: 100%;
+    height: 215px;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.occasion-card h3,
+.category-card h3 {
+    margin: 10px 0 14px;
+    color: #292929;
+    font-size: 17px;
+}
+
+.occasion-card a,
+.category-card a {
+    display: inline-block;
+    padding: 9px 19px;
+    border-radius: 22px;
+    background: #fff0f5;
+    color: #c94f76;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.occasion-card a:hover,
+.category-card a:hover {
+    background: #e75480;
+    color: #fff;
+}
+
+/* GIFT RECOMMENDATION */
+
+.recommendation-section {
+    padding: 65px 8%;
+    background: #fff0f5;
+    text-align: center;
+}
+
+.recommendation-section p {
+    max-width: 650px;
+    margin: 0 auto 25px;
+    color: #666;
+    line-height: 1.8;
+}
+
+.recommendation-section > a {
+    display: inline-block;
+    padding: 13px 27px;
+    border-radius: 28px;
+    background: #e75480;
+    color: white;
+    font-weight: 700;
+}
+
+.recommendation-section > a:hover {
+    background: #cf3f6c;
+}
+
+/* FEATURED PRODUCTS */
+
+.featured-section {
+    background: #fff;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 23px;
+    margin-top: 32px;
+    text-align: left;
+}
+
+.product-card {
+    overflow: hidden;
+    border: 1px solid #f1e6e9;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 3px 13px rgba(0, 0, 0, .05);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 9px 23px rgba(0, 0, 0, .10);
+}
+
+.product-card img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.product-card h3 {
+    margin: 16px 15px 8px;
+    color: #292929;
+    font-size: 16px;
+}
+
+.product-card p {
+    margin: 0 15px 14px;
+    color: #e75480;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.product-card a {
+    display: inline-block;
+    margin: 0 15px 17px;
+    padding: 9px 16px;
+    border-radius: 22px;
+    background: #fff0f5;
+    color: #c94f76;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.product-card a:hover {
+    background: #e75480;
+    color: white;
+}
+
+/* FOOTER */
+
+.site-footer {
+    padding: 38px 7%;
+    background: #292929;
+    color: #fff;
+    text-align: center;
+}
+
+.site-footer h2 {
+    margin-bottom: 12px;
+    color: #ff8eae;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+}
+
+.site-footer p {
+    margin: 7px 0;
+    color: #ccc;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* TABLET */
+
+@media (max-width: 1000px) {
+    .site-header {
+        padding: 15px 4%;
+    }
+
+    .main-navigation,
+    .header-actions {
+        gap: 12px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+    .site-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .menu-toggle {
+        display: inline-block;
+    }
+
+    .header-actions {
+        margin-left: auto;
+        gap: 10px;
+    }
+
+    .main-navigation {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 0;
+        border-top: 1px solid #f5e4eb;
+    }
+
+    .main-navigation.is-open {
+        display: flex;
+    }
+
+    .hero-section {
+        min-height: 390px;
+        padding: 55px 7%;
+    }
+
+    .hero-content h1 {
+        font-size: 38px;
+    }
+
+    .occasions-section,
+    .categories-section,
+    .featured-section {
+        padding: 45px 6%;
+    }
+
+    .occasion-grid,
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .occasion-card img,
+    .category-card img {
+        height: 160px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 13px;
+    }
+
+    .product-card img {
+        height: 165px;
+    }
+}
+
+@media (max-width: 430px) {
+    .occasion-grid,
+    .category-grid,
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content h1 {
+        font-size: 33px;
+    }
+
+    .header-actions {
+        gap: 8px;
+    }
+
+    .header-actions a {
+        font-size: 12px;
+    }
+}

@@ -67,7 +67,7 @@ function formatStatus($status)
                     <span>Dashboard</span>
                 </a>
 
-                <a href="profile.php" class="nav-link">
+                <a href="../profile/profile.php" class="nav-link">
                     <span class="nav-icon">♙</span>
                     <span>My Profile</span>
                 </a>
@@ -141,7 +141,7 @@ function formatStatus($status)
 
                     </a>
 
-                    <a href="profile.php" class="customer-mini-profile">
+                    <a href="../profile/profile.php" class="customer-mini-profile">
 
                         <div class="profile-avatar">
                             <?php echo strtoupper(substr($customer_name, 0, 1)); ?>

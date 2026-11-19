@@ -166,6 +166,47 @@ class CheckoutController
     |--------------------------------------------------------------------------
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | GET CUSTOMER ORDER HISTORY
+    |--------------------------------------------------------------------------
+    */
+
+    public function getOrderHistory()
+    {
+        if (empty($_SESSION['customer_id'])) {
+            return [];
+        }
+
+        try {
+            $customerId = (int) $_SESSION['customer_id'];
+
+            $stmt = $this->pdo->prepare("
+                SELECT
+                    order_id,
+                    order_number,
+                    placed_at,
+                    recipient_name,
+                    delivery_method,
+                    total_amount,
+                    order_status
+                FROM orders
+                WHERE user_id = ?
+                ORDER BY placed_at DESC
+            ");
+
+            $stmt->execute([$customerId]);
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e) {
+
+            error_log('Order history error: ' . $e->getMessage());
+
+            return 'Unable to retrieve your order history. Please try again later.';
+        }
+    }
+
     public function placeOrder($data, $csrfToken)
     {
         if (!$this->validateCsrf($csrfToken)) {

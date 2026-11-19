@@ -37,7 +37,7 @@ if (!$customer) {
     $_SESSION = [];
     session_destroy();
 
-    header('Location: ../login/Login.php');
+    header('Location: ../login/login.php');
     exit();
 }
 
