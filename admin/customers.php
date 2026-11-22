@@ -1,8 +1,9 @@
 <?php
+
 require_once __DIR__ . '/../includes/session.php';
 
 if (!isset($_SESSION['admin_id'])) {
-    header('Location: login.php');
+    header('Location: ../pages/login/login.php');
     exit;
 }
 
@@ -20,7 +21,7 @@ if (
 
 function h($value)
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 /* Handle customer actions */
@@ -29,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $token = $_POST['csrf_token'] ?? '';
 
-    if (!hash_equals($_SESSION['customers_csrf'], $token)) {
+    if (
+        !is_string($token) ||
+        !hash_equals($_SESSION['customers_csrf'], $token)
+    ) {
         $error = 'Invalid request. Please refresh the page.';
     } else {
 
@@ -40,9 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Invalid customer.';
         } else {
 
+            // Check customer in Giftly table
             $checkCustomer = $pdo->prepare("
                 SELECT user_id
-                FROM users
+                FROM giftly_users
                 WHERE user_id = ?
                 AND role_id = 1
                 LIMIT 1
@@ -54,10 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Customer not found.';
             } else {
 
+                // Activate or deactivate customer
                 if ($action === 'toggle_status') {
 
                     $statusUpdate = $pdo->prepare("
-                        UPDATE users
+                        UPDATE giftly_users
                         SET is_active = IF(is_active = 1, 0, 1)
                         WHERE user_id = ?
                         AND role_id = 1
@@ -72,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
 
+                // Edit customer
                 if ($action === 'edit') {
 
                     $firstName = trim($_POST['first_name'] ?? '');
@@ -81,8 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     if ($firstName === '' || $lastName === '' || $email === '') {
                         $error = 'Please complete all required fields.';
+
                     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $error = 'Please enter a valid email address.';
+
                     } elseif (
                         strlen($firstName) > 60 ||
                         strlen($lastName) > 60 ||
@@ -90,11 +99,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         strlen($phone) > 20
                     ) {
                         $error = 'One or more fields are too long.';
+
                     } else {
 
                         $emailCheck = $pdo->prepare("
                             SELECT user_id
-                            FROM users
+                            FROM giftly_users
                             WHERE email = ?
                             AND user_id != ?
                             LIMIT 1
@@ -104,10 +114,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         if ($emailCheck->fetch()) {
                             $error = 'This email address is already in use.';
+
                         } else {
 
                             $update = $pdo->prepare("
-                                UPDATE users
+                                UPDATE giftly_users
                                 SET first_name = ?,
                                     last_name = ?,
                                     email = ?,
@@ -144,7 +155,7 @@ if (isset($_SESSION['customers_success'])) {
     unset($_SESSION['customers_success']);
 }
 
-/* Search */
+/* Search customers */
 
 $search = trim($_GET['search'] ?? '');
 
@@ -153,7 +164,7 @@ if ($search !== '') {
     $stmt = $pdo->prepare("
         SELECT user_id, first_name, last_name, email, phone,
                is_active, created_at
-        FROM users
+        FROM giftly_users
         WHERE role_id = 1
         AND (
             first_name LIKE ?
@@ -171,19 +182,23 @@ if ($search !== '') {
     $stmt = $pdo->query("
         SELECT user_id, first_name, last_name, email, phone,
                is_active, created_at
-        FROM users
+        FROM giftly_users
         WHERE role_id = 1
         ORDER BY created_at DESC
     ");
 }
 
-$customers = $stmt->fetchAll();
+$customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* Customer selected for editing */
 
 $editId = (int) ($_GET['edit'] ?? 0);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'edit' && $error !== '') {
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    ($_POST['action'] ?? '') === 'edit' &&
+    $error !== ''
+) {
     $editId = $customerId;
 }
 
@@ -193,14 +208,14 @@ if ($editId > 0) {
 
     $editStmt = $pdo->prepare("
         SELECT user_id, first_name, last_name, email, phone
-        FROM users
+        FROM giftly_users
         WHERE user_id = ?
         AND role_id = 1
         LIMIT 1
     ");
 
     $editStmt->execute([$editId]);
-    $editCustomer = $editStmt->fetch();
+    $editCustomer = $editStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$editCustomer) {
         $editId = 0;
@@ -212,8 +227,10 @@ if ($editId > 0) {
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Manage Customers | Giftly Admin</title>
 
     <link rel="stylesheet" href="../assets/css/profile-sidebar.css">
@@ -472,6 +489,7 @@ if ($editId > 0) {
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -479,25 +497,38 @@ if ($editId > 0) {
     <?php require_once __DIR__ . '/../includes/profile-sidebar.php'; ?>
 
     <header>
+
         <h1>Giftly Admin</h1>
 
         <div class="header-links">
-            <span>Welcome,
-                <?= h($_SESSION['admin_name'] ?? 'Admin') ?>
+
+            <span>
+                Welcome, <?= h($_SESSION['admin_name'] ?? 'Admin') ?>
             </span>
+
             <span>|</span>
+
             <a href="../pages/dashboard/dashboard.php">Dashboard</a>
+
             <span>|</span>
-            <a href="../pages/home/Home.php">View Store</a>
+
+            <a href="../pages/home/home.php">View Store</a>
+
             <span>|</span>
-            <a href="/Giftly/logout.php">Logout</a>
+
+            <a href="../logout.php">Logout</a>
+
         </div>
+
     </header>
 
     <main>
 
         <h2>Manage Customers</h2>
-        <p class="description">View and manage registered Giftly customers.</p>
+
+        <p class="description">
+            View and manage registered Giftly customers.
+        </p>
 
         <?php if ($success): ?>
             <div class="message success">
@@ -529,24 +560,28 @@ if ($editId > 0) {
 
                         <div class="form-group">
                             <label for="first_name">First Name</label>
+
                             <input type="text" id="first_name" name="first_name"
                                 value="<?= h($editCustomer['first_name']) ?>" maxlength="60" required>
                         </div>
 
                         <div class="form-group">
                             <label for="last_name">Last Name</label>
+
                             <input type="text" id="last_name" name="last_name" value="<?= h($editCustomer['last_name']) ?>"
                                 maxlength="60" required>
                         </div>
 
                         <div class="form-group">
                             <label for="email">Email Address</label>
+
                             <input type="email" id="email" name="email" value="<?= h($editCustomer['email']) ?>"
                                 maxlength="150" required>
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
+
                             <input type="text" id="phone" name="phone" value="<?= h($editCustomer['phone'] ?? '') ?>"
                                 maxlength="20">
                         </div>
@@ -554,6 +589,7 @@ if ($editId > 0) {
                     </div>
 
                     <div class="form-actions">
+
                         <button type="submit" class="save-button">
                             Save Changes
                         </button>
@@ -561,6 +597,7 @@ if ($editId > 0) {
                         <a href="customers.php" class="button cancel-button">
                             Cancel
                         </a>
+
                     </div>
 
                 </form>
@@ -610,32 +647,36 @@ if ($editId > 0) {
 
                                 <tr>
 
-                                    <td>
-                                        <?= $index + 1 ?>
-                                    </td>
+                                    <td><?= $index + 1 ?></td>
 
                                     <td>
                                         <?= h($customer['first_name'] . ' ' . $customer['last_name']) ?>
                                     </td>
 
-                                    <td>
-                                        <?= h($customer['email']) ?>
-                                    </td>
+                                    <td><?= h($customer['email']) ?></td>
 
                                     <td>
                                         <?= h($customer['phone'] ?? 'Not provided') ?>
                                     </td>
 
                                     <td>
-                                        <?= h(date('d M Y', strtotime($customer['created_at']))) ?>
+                                        <?= !empty($customer['created_at'])
+                                            ? h(date('d M Y', strtotime($customer['created_at'])))
+                                            : '—' ?>
                                     </td>
 
                                     <td>
+
                                         <?php if ((int) $customer['is_active'] === 1): ?>
+
                                             <span class="status active">Active</span>
+
                                         <?php else: ?>
+
                                             <span class="status inactive">Inactive</span>
+
                                         <?php endif; ?>
+
                                     </td>
 
                                     <td>

@@ -49,18 +49,21 @@ class CartController
         if ($owner['user_id'] !== null) {
             $stmt = $this->pdo->prepare("
                 SELECT cart_id
-                FROM carts
-                WHERE user_id = ? AND status = 'active'
+                FROM giftly_carts
+                WHERE user_id = ?
+                  AND status = 'active'
                 ORDER BY cart_id DESC
                 LIMIT 1
             ");
 
             $stmt->execute([$owner['user_id']]);
+
         } else {
             $stmt = $this->pdo->prepare("
                 SELECT cart_id
-                FROM carts
-                WHERE session_id = ? AND status = 'active'
+                FROM giftly_carts
+                WHERE session_id = ?
+                  AND status = 'active'
                 ORDER BY cart_id DESC
                 LIMIT 1
             ");
@@ -79,7 +82,8 @@ class CartController
         }
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO carts (user_id, session_id, status)
+            INSERT INTO giftly_carts
+                (user_id, session_id, status)
             VALUES (?, ?, 'active')
         ");
 
@@ -111,6 +115,7 @@ class CartController
                 ci.product_id,
                 ci.quantity,
                 ci.packaging_id,
+
                 p.product_name,
                 p.price,
                 p.stock_quantity,
@@ -124,12 +129,12 @@ class CartController
                     * ci.quantity
                 ) AS line_total
 
-            FROM cart_items ci
+            FROM giftly_cart_items ci
 
-            INNER JOIN products p
+            INNER JOIN giftly_products p
                 ON ci.product_id = p.product_id
 
-            LEFT JOIN gift_packaging gp
+            LEFT JOIN giftly_gift_packaging gp
                 ON ci.packaging_id = gp.packaging_id
 
             WHERE ci.cart_id = ?
@@ -175,8 +180,12 @@ class CartController
             $this->pdo->beginTransaction();
 
             $stmt = $this->pdo->prepare("
-                SELECT product_id, product_name, price, stock_quantity
-                FROM products
+                SELECT
+                    product_id,
+                    product_name,
+                    price,
+                    stock_quantity
+                FROM giftly_products
                 WHERE product_id = ?
                   AND is_active = 1
                 FOR UPDATE
@@ -194,7 +203,7 @@ class CartController
 
             $stmt = $this->pdo->prepare("
                 SELECT cart_item_id, quantity
-                FROM cart_items
+                FROM giftly_cart_items
                 WHERE cart_id = ?
                   AND product_id = ?
                 LIMIT 1
@@ -216,7 +225,7 @@ class CartController
 
             if ($existingItem) {
                 $stmt = $this->pdo->prepare("
-                    UPDATE cart_items
+                    UPDATE giftly_cart_items
                     SET quantity = ?
                     WHERE cart_item_id = ?
                 ");
@@ -225,9 +234,10 @@ class CartController
                     $newQuantity,
                     $existingItem['cart_item_id']
                 ]);
+
             } else {
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO cart_items
+                    INSERT INTO giftly_cart_items
                         (cart_id, product_id, quantity)
                     VALUES (?, ?, ?)
                 ");
@@ -240,6 +250,7 @@ class CartController
             }
 
             $this->pdo->commit();
+
             return true;
 
         } catch (PDOException $e) {
@@ -274,10 +285,12 @@ class CartController
             }
 
             $stmt = $this->pdo->prepare("
-                SELECT ci.cart_item_id, p.stock_quantity
-                FROM cart_items ci
+                SELECT
+                    ci.cart_item_id,
+                    p.stock_quantity
+                FROM giftly_cart_items ci
 
-                INNER JOIN products p
+                INNER JOIN giftly_products p
                     ON ci.product_id = p.product_id
 
                 WHERE ci.cart_item_id = ?
@@ -299,7 +312,7 @@ class CartController
             }
 
             $stmt = $this->pdo->prepare("
-                UPDATE cart_items
+                UPDATE giftly_cart_items
                 SET quantity = ?
                 WHERE cart_item_id = ?
                   AND cart_id = ?
@@ -332,9 +345,14 @@ class CartController
             return 'Invalid cart item.';
         }
 
-        // Zero or empty means no packaging.
-        if ($packagingId === '' || $packagingId === null || $packagingId === '0' || $packagingId === 0) {
+        if (
+            $packagingId === ''
+            || $packagingId === null
+            || $packagingId === '0'
+            || $packagingId === 0
+        ) {
             $packagingId = null;
+
         } else {
             $packagingId = filter_var($packagingId, FILTER_VALIDATE_INT);
 
@@ -350,10 +368,9 @@ class CartController
                 return 'Your cart is empty.';
             }
 
-            // Confirm that the cart item belongs to this customer's cart.
             $stmt = $this->pdo->prepare("
                 SELECT cart_item_id
-                FROM cart_items
+                FROM giftly_cart_items
                 WHERE cart_item_id = ?
                   AND cart_id = ?
                 LIMIT 1
@@ -365,11 +382,10 @@ class CartController
                 return 'Cart item not found.';
             }
 
-            // Check that the selected packaging exists and is active.
             if ($packagingId !== null) {
                 $stmt = $this->pdo->prepare("
                     SELECT packaging_id
-                    FROM gift_packaging
+                    FROM giftly_gift_packaging
                     WHERE packaging_id = ?
                       AND is_active = 1
                     LIMIT 1
@@ -383,7 +399,7 @@ class CartController
             }
 
             $stmt = $this->pdo->prepare("
-                UPDATE cart_items
+                UPDATE giftly_cart_items
                 SET packaging_id = ?
                 WHERE cart_item_id = ?
                   AND cart_id = ?
@@ -424,7 +440,7 @@ class CartController
             }
 
             $stmt = $this->pdo->prepare("
-                DELETE FROM cart_items
+                DELETE FROM giftly_cart_items
                 WHERE cart_item_id = ?
                   AND cart_id = ?
             ");

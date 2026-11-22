@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $checkEmail = $pdo->prepare("
                 SELECT user_id
-                FROM users
+                FROM giftly_users
                 WHERE email = ?
                 AND user_id != ?
                 LIMIT 1
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
 
                 $update = $pdo->prepare("
-                    UPDATE users
+                    UPDATE giftly_users
                     SET first_name = ?,
                         last_name = ?,
                         email = ?,
@@ -94,7 +94,7 @@ if (isset($_SESSION['profile_success'])) {
 
 $stmt = $pdo->prepare("
     SELECT first_name, last_name, email, phone, created_at
-    FROM users
+    FROM giftly_users
     WHERE user_id = ?
     AND role_id = 1
     AND is_active = 1
@@ -139,8 +139,8 @@ function h($value)
 <body>
 
     <header class="profile-header">
-        <a href="../home/Home.php" class="brand">Giftly</a>
-        <a href="../home/Home.php" class="back-link">Back to Store</a>
+        <a href="../home/home.php" class="brand">Giftly</a>
+        <a href="../home/home.php" class="back-link">Back to Store</a>
     </header>
 
     <main class="profile-container">
@@ -161,16 +161,12 @@ function h($value)
         <section class="profile-card">
 
             <div class="profile-top">
-
-                <div class="avatar">
-                    <?= h($initials) ?>
-                </div>
+                <div class="avatar"><?= h($initials) ?></div>
 
                 <div class="profile-intro">
                     <h2><?= h($fullName) ?></h2>
                     <span>Customer Account</span>
                 </div>
-
             </div>
 
             <div class="profile-section-heading">
@@ -225,7 +221,7 @@ function h($value)
                         Edit Profile
                     </button>
 
-                    <div id="editActions" class="edit-actions" style="display: none;">
+                    <div id="editActions" class="edit-actions" style="display:none;">
 
                         <button type="submit" class="save-button">
                             Save Changes
@@ -263,7 +259,6 @@ function h($value)
             let originalValues = {};
 
             editButton.addEventListener('click', function () {
-
                 originalValues = {};
 
                 editableFields.forEach(function (field) {
@@ -273,12 +268,10 @@ function h($value)
 
                 editButton.style.display = 'none';
                 editActions.style.display = 'flex';
-
                 editableFields[0].focus();
             });
 
             cancelButton.addEventListener('click', function () {
-
                 editableFields.forEach(function (field) {
                     field.value = originalValues[field.name];
                     field.disabled = true;

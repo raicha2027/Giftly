@@ -1,34 +1,28 @@
-﻿product_id,name,category,price,interests,occasions
-1,Fashion Handbag,Fashion,180,Fashion,Birthday
-2,Jewelry Set,Accessories,220,Fashion,Birthday
-3,Beauty Gift Box,Beauty,150,Beauty,Birthday
-4,Smart Watch,Technology,250,Technology,Graduation
-5,Personalized Necklace,Jewelry,120,Fashion,Anniversary
-6,Leather Handbag,Fashion,240,Fashion,Birthday
-7,Perfume Gift Set,Beauty,190,Beauty,Anniversary
-8,Classic Bracelet,Jewelry,100,Fashion,Birthday
-9,Mini Shoulder Bag,Fashion,160,Fashion,Birthday
-10,Women's Wallet,Fashion,85,Fashion,Graduation
-11,Leather Purse,Fashion,130,Fashion,Anniversary
-12,Sunglasses,Fashion,95,Fashion,Birthday
-13,Gold Plated Earrings,Jewelry,75,Fashion,Birthday
-14,Elegant Pendant Necklace,Jewelry,140,Fashion,Anniversary
-15,Charm Bracelet,Jewelry,110,Fashion,Birthday
-16,Jewelry Storage Box,Accessories,90,Fashion,Graduation
-17,Skincare Gift Set,Beauty,175,Beauty,Birthday
-18,Body Care Gift Basket,Beauty,200,Beauty,Anniversary
-19,Makeup Brush Set,Beauty,80,Beauty,Birthday
-20,Vanity Makeup Bag,Beauty,95,Beauty,Graduation
-21,Wireless Earbuds,Technology,230,Technology,Birthday
-22,Portable Bluetooth Speaker,Technology,200,Technology,Graduation
-23,Phone Accessories Set,Technology,100,Technology,Birthday
-24,Desk Organizer,Home Decor,85,Reading,Graduation
-25,Scented Candle Set,Home Decor,90,Home,Birthday
-26,Decorative Photo Frame,Home Decor,70,Home,Anniversary
-27,Personalized Mug,Personalized,65,Personalized,Birthday
-28,Custom Photo Album,Personalized,120,Personalized,Anniversary
-29,Gift Hamper,Food and Drink,180,Food,Birthday
-30,Chocolate Gift Box,Food and Drink,110,Food,Valentine
-31,Travel Makeup Organizer,Accessories,125,Fashion,Graduation
-32,Mini Desk Lamp,Home Decor,100,Home,Graduation
-33,Personalized Keychain,Personalized,45,Personalized,Birthday
+﻿product_id,name,category,price,interests,occasions,recipient_gender,image,relationship,recipient_age,personality,style,gift_type
+1,Bag,Fashion,456,Fashion,Birthday|Anniversary,women,assets/uploads/products/e582eb0c7f10941c85ca645d66c4d056.jpg,,,,,
+3,Perfume,Beauty,499.99,Beauty,Birthday|Anniversary,unisex,assets/uploads/products/5679e9e0e07f5669e2ab0c13f52de428.webp,,,,,
+5,Parfum,Beauty,599.82,Beauty,Birthday|Anniversary,unisex,assets/uploads/products/965b1e308c4588c7e80505c1561f628d.webp,,,,,
+6,African Print Skirt,Fashion,0,Fashion|African Culture,Birthday|Wedding,women,assets/Skirt.jpg,,,,,
+7,African Print Shirt,Fashion,0,Fashion|African Culture,Birthday|Graduation,men,assets/africanshirt.webp,,,,,
+8,African Print Fabric Set,Fashion,0,Fashion|African Culture,Birthday|Wedding,unisex,assets/Africanprint.jpg,,,,,
+9,African Print Dress,Fashion,0,Fashion|African Culture,Birthday|Wedding,women,assets/africadress.webp,,,,,
+10,Louis Vuitton Nano Speedy Bag,Fashion,0,Fashion,Birthday|Anniversary,women,assets/Louivuitton.avif,,,,,
+11,Louis Vuitton Handbag,Fashion,0,Fashion,Birthday|Anniversary,women,assets/Louisvuittonbag.avif,,,,,
+12,Red Handbag,Fashion,0,Fashion,Birthday|Anniversary,women,assets/redbag.webp,,,,,
+13,Brown Leather Handbag,Fashion,0,Fashion,Birthday|Anniversary,women,assets/brownbag.webp,,,,,
+14,Red Rose Arrangement,Flowers,0,Flowers|Romance,Anniversary|Valentine,women,assets/flowerboule.webp,,,,,
+15,Pink Flower Bouquet,Flowers,0,Flowers|Romance,Birthday|Anniversary,women,assets/bouquetflower.webp,,,,,
+16,Teddy Bear Chocolate Bouquet,Gift Sets,0,Chocolate|Teddy Bear,Birthday|Valentine,unisex,assets/Chocolate-Teddy-Keyring-Bouquet-with-Accessories-Gift-SPM-560_148439__08440.webp,,,,,
+17,Assorted Chocolate Gift,Food and Drink,0,Chocolate|Food,Birthday|Valentine,unisex,assets/chocolategift.webp,,,,,
+18,Chocolate Gift Bouquet,Gift Sets,0,Chocolate|Food,Birthday|Valentine,unisex,assets/Chocolatebouquet.webp,,,,,
+19,Chocolate Gift Box,Food and Drink,0,Chocolate|Food,Birthday|Valentine,unisex,assets/chocolate.webp,,,,,
+20,Mens Formal Shoes,Fashion,200,Fashion,Birthday|Graduation,men,assets/menshoes.webp,,,,,
+21,Women Essentials Gift Basket,Gift Sets,0,Beauty|Personal Care,Birthday|Anniversary,women,assets/girlessentials.webp,,,,,
+22,Pink Gift Box Collection,Gift Sets,0,Gifts|Fashion,Birthday|Anniversary,women,assets/Gifts.jpg,,,,,
+23,African Fabric Gift Boxes,Gift Sets,0,African Culture|Gifts,Birthday|Wedding,unisex,assets/giftbox.webp,,,,,
+24,Red Gift Hamper,Gift Sets,0,Gifts|Food,Birthday|Anniversary,unisex,assets/joggings.jpg,,,,,
+25,Clothing Gift Box,Gift Sets,0,Fashion|Clothing,Birthday|Graduation,unisex,assets/shirt.webp,,,,,
+26,Mens Gift Box,Gift Sets,400,Fashion,Birthday|Graduation,men,assets/menbox.webp,,,,,
+27,Pink Luxury Gift Collection,Gift Sets,0,Gifts|Fashion,Birthday|Anniversary,women,assets/Collection.jpg,,,,,
+28,Romantic Teddy Bear Gift,Gift Sets,100,Romance|Teddy Bear,Birthday|Anniversary|Valentine,unisex,assets/romanticteddy.jpg,,,,,
+37,African-Themed Wedding Gift,Gift Sets,2.34,African Culture|Gifts,Wedding|Birthday,unisex,assets/weddinggift.png,,,,,

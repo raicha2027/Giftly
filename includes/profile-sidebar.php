@@ -56,7 +56,7 @@ if (
         } else {
             $checkEmail = $pdo->prepare("
                 SELECT user_id
-                FROM users
+                FROM giftly_users
                 WHERE email = ?
                   AND user_id != ?
                 LIMIT 1
@@ -68,7 +68,7 @@ if (
                 $profileError = 'This email address is already in use.';
             } else {
                 $update = $pdo->prepare("
-                    UPDATE users
+                    UPDATE giftly_users
                     SET first_name = ?,
                         last_name = ?,
                         email = ?,
@@ -102,7 +102,7 @@ if (
 
 $stmt = $pdo->prepare("
     SELECT first_name, last_name, email, phone, created_at
-    FROM users
+    FROM giftly_users
     WHERE user_id = ?
       AND role_id = ?
       AND is_active = 1

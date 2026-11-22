@@ -690,7 +690,9 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
             </div>
 
             <div class="gift-card">
-                <img src="https://images.unsplash.com/photo-1490750967868-88aa4486c88?w=600" alt="Beautiful flowers">
+                <img src="https://images.unsplash.com/photo-1549048799-482af26246f3?auto=format&fit=crop&w=600&q=80"
+                    alt="Beautiful flowers">
+
                 <div class="gift-info">
                     <h3>Beautiful Flowers</h3>
                     <p>Explore this gift</p>

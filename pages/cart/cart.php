@@ -3,6 +3,9 @@
 
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../controllers/CartController.php';
+require_once __DIR__ . '/../../config/db.php';
+
+$baseUrl = '/~fatma.abdourahmane/Giftly';
 
 function e($value)
 {
@@ -32,11 +35,9 @@ $cartCount = (int) ($cartSummary['total_items'] ?? 0);
 $subtotal = (float) ($cartSummary['subtotal'] ?? 0);
 
 // Get available packaging options.
-require_once __DIR__ . '/../../config/db.php';
-
 $packagingStmt = $pdo->prepare("
     SELECT packaging_id, packaging_name, packaging_price
-    FROM gift_packaging
+    FROM giftly_gift_packaging
     WHERE is_active = 1
     ORDER BY packaging_id ASC
 ");
@@ -51,6 +52,8 @@ unset($_SESSION['cart_success'], $_SESSION['cart_error']);
 
 function getCartImageUrl($imagePath)
 {
+    global $baseUrl;
+
     if (empty($imagePath)) {
         return '';
     }
@@ -66,7 +69,8 @@ function getCartImageUrl($imagePath)
 
     $parts = explode('/', trim($imagePath, '/'));
 
-    return '../../assets/' . implode('/', array_map('rawurlencode', $parts));
+    return $baseUrl . '/assets/' .
+        implode('/', array_map('rawurlencode', $parts));
 }
 
 ?>
@@ -80,7 +84,7 @@ function getCartImageUrl($imagePath)
 
     <title>My Cart | Giftly</title>
 
-    <link rel="stylesheet" href="/Giftly/assets/css/style.css?v=2">
+    <link rel="stylesheet" href="<?php echo $baseUrl; ?>/assets/css/style.css?v=2">
 
     <style>
         .gift-selection-box {
@@ -211,25 +215,26 @@ function getCartImageUrl($imagePath)
 
 <body>
 
-    <!-- HEADER -->
     <header class="cart-header">
 
         <div class="cart-header-inner">
 
-            <a href="../home/Home.php" class="cart-logo">
+            <a href="<?php echo $baseUrl; ?>/pages/home/home.php" class="cart-logo">
                 Giftly
             </a>
 
             <nav class="cart-navigation">
-                <a href="../home/Home.php">Home</a>
-                <a href="../shop/gifts.php">Shop</a>
+                <a href="<?php echo $baseUrl; ?>/pages/home/home.php">Home</a>
+                <a href="<?php echo $baseUrl; ?>/pages/shop/gifts.php">Shop</a>
             </nav>
 
             <div class="cart-header-actions">
 
-                <a href="../dashboard/CustomerDashboard.php">My Account</a>
+                <a href="<?php echo $baseUrl; ?>/pages/dashboard/CustomerDashboard.php">
+                My Account
+                </a>
 
-                <a href="cart.php" class="active-cart-link">
+                <a href="<?php echo $baseUrl; ?>/pages/cart/cart.php" class="active-cart-link">
                     Cart (<?php echo $cartCount; ?>)
                 </a>
 
@@ -239,7 +244,6 @@ function getCartImageUrl($imagePath)
 
     </header>
 
-    <!-- PAGE INTRO -->
     <section class="cart-page-intro">
         <h1>My Shopping Cart</h1>
     </section>
@@ -264,11 +268,10 @@ function getCartImageUrl($imagePath)
 
         <?php if (!empty($cartItems)): ?>
 
-            <!-- SELECTION FORM -->
             <form
                 id="checkout-selection-form"
                 method="POST"
-                action="../checkout/checkout.php"
+                action="<?php echo $baseUrl; ?>/pages/checkout/checkout.php"
             >
 
                 <input
@@ -287,15 +290,11 @@ function getCartImageUrl($imagePath)
 
             <div class="cart-layout">
 
-                <!-- CART ITEMS -->
                 <section class="cart-items-section">
 
                     <div class="cart-section-heading">
-
                         <h2>Your Gifts</h2>
-
                         <span><?php echo $cartCount; ?> item(s)</span>
-
                     </div>
 
                     <p class="selection-instructions">
@@ -319,7 +318,6 @@ function getCartImageUrl($imagePath)
 
                         <article class="cart-item">
 
-                            <!-- IMAGE -->
                             <div class="cart-item-image">
 
                                 <?php if ($imageUrl !== ''): ?>
@@ -339,7 +337,6 @@ function getCartImageUrl($imagePath)
 
                             </div>
 
-                            <!-- ITEM INFORMATION -->
                             <div class="cart-item-info">
 
                                 <h3>
@@ -350,7 +347,6 @@ function getCartImageUrl($imagePath)
                                     <?php echo formatMoney($productPrice); ?> each
                                 </p>
 
-                                <!-- VISIBLE SELECTION CHECKBOX -->
                                 <div class="gift-selection-box">
 
                                     <label>
@@ -375,13 +371,12 @@ function getCartImageUrl($imagePath)
 
                                 </div>
 
-                                <!-- GIFT PACKAGING -->
                                 <div class="packaging-section">
 
                                     <h4>Make it a special gift</h4>
 
                                     <form
-                                        action="cart_action.php"
+                                        action="<?php echo $baseUrl; ?>/pages/cart/cart_action.php"
                                         method="POST"
                                         class="packaging-form"
                                     >
@@ -409,9 +404,11 @@ function getCartImageUrl($imagePath)
                                             aria-label="Choose gift packaging"
                                         >
 
-                                            <option value="0"
-                                                <?php echo empty($packagingId) ? 'selected' : ''; ?>>
-                                                No packaging 
+                                            <option
+                                                value="0"
+                                                <?php echo empty($packagingId) ? 'selected' : ''; ?>
+                                            >
+                                                No packaging
                                             </option>
 
                                             <?php foreach ($packagingOptions as $option): ?>
@@ -421,8 +418,8 @@ function getCartImageUrl($imagePath)
                                                     <?php echo (int) $packagingId === (int) $option['packaging_id'] ? 'selected' : ''; ?>
                                                 >
                                                     <?php
-                                                        echo e($option['packaging_name'])
-                                                         . ' '
+                                                    echo e($option['packaging_name'])
+                                                        . ' '
                                                         . formatMoney($option['packaging_price']);
                                                     ?>
                                                 </option>
@@ -454,9 +451,8 @@ function getCartImageUrl($imagePath)
 
                                 </div>
 
-                                <!-- UPDATE QUANTITY -->
                                 <form
-                                    action="cart_action.php"
+                                    action="<?php echo $baseUrl; ?>/pages/cart/cart_action.php"
                                     method="POST"
                                     class="cart-quantity-form"
                                 >
@@ -504,9 +500,8 @@ function getCartImageUrl($imagePath)
 
                                 </form>
 
-                                <!-- REMOVE ITEM -->
                                 <form
-                                    action="cart_action.php"
+                                    action="<?php echo $baseUrl; ?>/pages/cart/cart_action.php"
                                     method="POST"
                                     class="remove-item-form"
                                 >
@@ -537,7 +532,6 @@ function getCartImageUrl($imagePath)
 
                             </div>
 
-                            <!-- ITEM TOTAL -->
                             <div class="cart-item-total">
 
                                 <span>Item Total</span>
@@ -566,7 +560,10 @@ function getCartImageUrl($imagePath)
 
                     <?php endforeach; ?>
 
-                    <a href="../shop/gifts.php" class="continue-shopping">
+                    <a
+                        href="<?php echo $baseUrl; ?>/pages/shop/gifts.php"
+                        class="continue-shopping"
+                    >
                         Continue Shopping
                     </a>
 
@@ -641,7 +638,7 @@ function getCartImageUrl($imagePath)
                 </p>
 
                 <a
-                    href="../shop/gifts.php"
+                    href="<?php echo $baseUrl; ?>/pages/shop/gifts.php"
                     class="empty-cart-button"
                 >
                     Discover Gifts
@@ -706,7 +703,7 @@ function getCartImageUrl($imagePath)
         updateSelectionSummary();
     </script>
 
-    <script src="cart.js"></script>
+    <script src="<?php echo $baseUrl; ?>/pages/cart/cart.js"></script>
 
 </body>
 

@@ -1,19 +1,16 @@
+
 <?php
-session_start();
+
+require_once __DIR__ . '/../includes/session.php';
 
 if (!isset($_SESSION['admin_id'])) {
-    header('Location: login.php');
+    header('Location: ../pages/login/login.php');
     exit;
 }
 
 require_once __DIR__ . '/../config/db.php';
 
-/*
-|--------------------------------------------------------------------------
-| CSRF TOKEN
-|--------------------------------------------------------------------------
-*/
-
+// Create CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -21,12 +18,7 @@ if (empty($_SESSION['csrf_token'])) {
 $message = '';
 $messageType = 'success';
 
-/*
-|--------------------------------------------------------------------------
-| DELETE PRODUCT
-|--------------------------------------------------------------------------
-*/
-
+// Delete product
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $token = $_POST['csrf_token'] ?? '';
@@ -45,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             $stmt = $pdo->prepare(
-                "DELETE FROM products WHERE product_id = ?"
+                "DELETE FROM giftly_products WHERE product_id = ?"
             );
 
             $stmt->execute([$productId]);
@@ -59,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
         } catch (PDOException $e) {
-
             $_SESSION['product_message'] =
                 'This product cannot be deleted because it may be linked to an order, cart, or another record.';
 
@@ -71,12 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| DISPLAY MESSAGE
-|--------------------------------------------------------------------------
-*/
-
+// Display messages
 if (isset($_SESSION['product_message'])) {
 
     $message = $_SESSION['product_message'];
@@ -86,35 +72,26 @@ if (isset($_SESSION['product_message'])) {
     unset($_SESSION['product_message_type']);
 }
 
-/*
-|--------------------------------------------------------------------------
-| GET ALL PRODUCTS
-|--------------------------------------------------------------------------
-*/
-
+// Get Giftly products and categories
 $stmt = $pdo->query(
-    "SELECT p.product_id,
-            p.product_name,
-            p.brand,
-            p.price,
-            p.image_path,
-            p.stock_quantity,
-            p.is_active,
-            c.category_name
-     FROM products p
-     LEFT JOIN categories c
+    "SELECT
+        p.product_id,
+        p.product_name,
+        p.brand,
+        p.price,
+        p.image_path,
+        p.stock_quantity,
+        p.is_active,
+        c.category_name
+     FROM giftly_products p
+     LEFT JOIN giftly_categories c
         ON p.category_id = c.category_id
      ORDER BY p.product_id DESC"
 );
 
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/*
-|--------------------------------------------------------------------------
-| ESCAPE OUTPUT
-|--------------------------------------------------------------------------
-*/
-
+// Escape output
 function h($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -125,7 +102,6 @@ function h($value)
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -163,10 +139,7 @@ function h($value)
 
         main {
             width: 100%;
-            max-width: none;
-            margin: 0;
             padding: 40px 50px;
-            box-sizing: border-box;
         }
 
         .top-actions {
@@ -228,8 +201,7 @@ function h($value)
             min-width: 850px;
         }
 
-        th,
-        td {
+        th, td {
             padding: 13px;
             text-align: left;
             border-bottom: 1px solid #eee;
@@ -277,10 +249,6 @@ function h($value)
             font-weight: bold;
         }
 
-        .delete-button:hover {
-            background: #edc3c3;
-        }
-
         .delete-form {
             display: inline;
         }
@@ -295,166 +263,158 @@ function h($value)
             }
         }
     </style>
-
 </head>
 
 <body>
 
-    <header>
-        <h1>Giftly Admin</h1>
-        <a href="../logout.php">Logout</a>
-    </header>
+<header>
+    <h1>Giftly Admin</h1>
+    <a href="../logout.php">Logout</a>
+</header>
 
-    <main>
+<main>
 
-        <h2>Manage Products</h2>
+    <h2>Manage Products</h2>
 
-        <p>
-            Add new products and edit or delete existing products in your store.
-        </p>
+    <p>
+        Add new products and edit or delete existing products in your store.
+    </p>
 
-        <div class="top-actions">
+    <div class="top-actions">
 
-            <a class="button" href="add_product.php">
-                + Add New Product
-            </a>
+        <a class="button" href="add_product.php">
+            + Add New Product
+        </a>
 
-            <a class="button back" href="../pages/dashboard/dashboard.php">
-                Back to Dashboard
-            </a>
+        <a class="button back" href="../pages/dashboard/dashboard.php">
+            Back to Dashboard
+        </a>
 
+    </div>
+
+    <?php if ($message !== ''): ?>
+        <div class="message <?= h($messageType) ?>">
+            <?= h($message) ?>
         </div>
+    <?php endif; ?>
 
-        <?php if ($message !== ''): ?>
+    <div class="table-wrap">
 
-            <div class="message <?= h($messageType) ?>">
-                <?= h($message) ?>
-            </div>
+        <table>
 
-        <?php endif; ?>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Price (GHS)</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
 
-        <div class="table-wrap">
+            <tbody>
 
-            <table>
+            <?php if (count($products) === 0): ?>
 
-                <thead>
+                <tr>
+                    <td colspan="8">No products have been added yet.</td>
+                </tr>
+
+            <?php else: ?>
+
+                <?php foreach ($products as $product): ?>
+
                     <tr>
-                        <th>Image</th>
-                        <th>Product</th>
-                        <th>Brand</th>
-                        <th>Category</th>
-                        <th>Price (GHS)</th>
-                        <th>Stock</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+
+                        <td>
+                            <?php if (!empty($product['image_path'])): ?>
+                                <img
+                                    class="product-image"
+                                    src="../<?= h($product['image_path']) ?>"
+                                    alt="<?= h($product['product_name']) ?>"
+                                >
+                            <?php else: ?>
+                                No image
+                            <?php endif; ?>
+                        </td>
+
+                        <td><?= h($product['product_name']) ?></td>
+
+                        <td><?= h($product['brand'] ?: '—') ?></td>
+
+                        <td><?= h($product['category_name'] ?: '—') ?></td>
+
+                        <td>
+                            <?= number_format((float) $product['price'], 2) ?>
+                        </td>
+
+                        <td><?= (int) $product['stock_quantity'] ?></td>
+
+                        <td>
+                            <?php if ((int) $product['is_active'] === 1): ?>
+                                <span class="status-active">Active</span>
+                            <?php else: ?>
+                                <span class="status-inactive">Inactive</span>
+                            <?php endif; ?>
+                        </td>
+
+                        <td>
+
+                            <a
+                                class="edit-link"
+                                href="edit_product.php?id=<?= (int) $product['product_id'] ?>"
+                            >
+                                Edit
+                            </a>
+
+                            <form
+                                method="POST"
+                                class="delete-form"
+                                onsubmit="return confirm('Are you sure you want to delete this product?');"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="<?= h($_SESSION['csrf_token']) ?>"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="product_id"
+                                    value="<?= (int) $product['product_id'] ?>"
+                                >
+
+                                <input
+                                    type="hidden"
+                                    name="action"
+                                    value="delete"
+                                >
+
+                                <button type="submit" class="delete-button">
+                                    Delete
+                                </button>
+
+                            </form>
+
+                        </td>
+
                     </tr>
-                </thead>
 
-                <tbody>
+                <?php endforeach; ?>
 
-                    <?php if (count($products) === 0): ?>
+            <?php endif; ?>
 
-                        <tr>
-                            <td colspan="8">
-                                No products have been added yet.
-                                Click "Add New Product" to add your first product.
-                            </td>
-                        </tr>
+            </tbody>
 
-                    <?php else: ?>
+        </table>
 
-                        <?php foreach ($products as $product): ?>
+    </div>
 
-                            <tr>
-
-                                <td>
-                                    <?php if (!empty($product['image_path'])): ?>
-
-                                        <img class="product-image" src="../<?= h($product['image_path']) ?>"
-                                            alt="<?= h($product['product_name']) ?>">
-
-                                    <?php else: ?>
-
-                                        No image
-
-                                    <?php endif; ?>
-                                </td>
-
-                                <td>
-                                    <?= h($product['product_name']) ?>
-                                </td>
-
-                                <td>
-                                    <?= h($product['brand'] ?: '—') ?>
-                                </td>
-
-                                <td>
-                                    <?= h($product['category_name'] ?: '—') ?>
-                                </td>
-
-                                <td>
-                                    <?= number_format((float) $product['price'], 2) ?>
-                                </td>
-
-                                <td>
-                                    <?= (int) $product['stock_quantity'] ?>
-                                </td>
-
-                                <td>
-
-                                    <?php if ((int) $product['is_active'] === 1): ?>
-
-                                        <span class="status-active">
-                                            Active
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        <span class="status-inactive">
-                                            Inactive
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
-
-                                <td>
-
-                                    <a class="edit-link" href="edit_product.php?id=<?= (int) $product['product_id'] ?>">
-                                        Edit
-                                    </a>
-
-                                    <form method="POST" class="delete-form"
-                                        onsubmit="return confirm('Are you sure you want to delete this product? This action cannot be undone.');">
-
-                                        <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
-
-                                        <input type="hidden" name="product_id" value="<?= (int) $product['product_id'] ?>">
-
-                                        <input type="hidden" name="action" value="delete">
-
-                                        <button type="submit" class="delete-button">
-                                            Delete
-                                        </button>
-
-                                    </form>
-
-                                </td>
-
-                            </tr>
-
-                        <?php endforeach; ?>
-
-                    <?php endif; ?>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </main>
+</main>
 
 </body>
-
 </html>

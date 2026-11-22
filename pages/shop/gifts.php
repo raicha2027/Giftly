@@ -8,6 +8,8 @@ function h($value)
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+$baseUrl = '/~fatma.abdourahmane/Giftly';
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -20,6 +22,8 @@ if (empty($_SESSION['csrf_token'])) {
 
 function imageUrl($imagePath)
 {
+    global $baseUrl;
+
     $imagePath = trim((string) $imagePath);
 
     if ($imagePath === '') {
@@ -34,7 +38,7 @@ function imageUrl($imagePath)
     $imagePath = preg_replace('~^(\.\./)+~', '', $imagePath);
     $imagePath = preg_replace('~^/?assets/~', '', $imagePath);
 
-    return '../../assets/' . implode(
+    return $baseUrl . '/assets/' . implode(
         '/',
         array_map('rawurlencode', explode('/', $imagePath))
     );
@@ -42,7 +46,7 @@ function imageUrl($imagePath)
 
 /*
 |--------------------------------------------------------------------------
-| Load all active gifts from the database
+| Load active gifts from Giftly database tables
 |--------------------------------------------------------------------------
 */
 
@@ -59,8 +63,8 @@ try {
             p.image_path,
             p.stock_quantity,
             c.category_name
-        FROM products p
-        LEFT JOIN categories c
+        FROM giftly_products p
+        LEFT JOIN giftly_categories c
             ON p.category_id = c.category_id
         WHERE p.is_active = 1
         ORDER BY p.product_id DESC
@@ -81,32 +85,35 @@ try {
 $cartCount = 0;
 
 try {
+
     if (!empty($_SESSION['customer_id'])) {
 
         $stmt = $pdo->prepare("
             SELECT COALESCE(SUM(ci.quantity), 0)
-            FROM cart_items ci
-            INNER JOIN carts c ON ci.cart_id = c.cart_id
+            FROM giftly_cart_items ci
+            INNER JOIN giftly_carts c
+                ON ci.cart_id = c.cart_id
             WHERE c.user_id = ?
               AND c.status = 'active'
         ");
 
         $stmt->execute([(int) $_SESSION['customer_id']]);
-        $cartCount = (int) $stmt->fetchColumn();
 
     } else {
 
         $stmt = $pdo->prepare("
             SELECT COALESCE(SUM(ci.quantity), 0)
-            FROM cart_items ci
-            INNER JOIN carts c ON ci.cart_id = c.cart_id
+            FROM giftly_cart_items ci
+            INNER JOIN giftly_carts c
+                ON ci.cart_id = c.cart_id
             WHERE c.session_id = ?
               AND c.status = 'active'
         ");
 
         $stmt->execute([session_id()]);
-        $cartCount = (int) $stmt->fetchColumn();
     }
+
+    $cartCount = (int) $stmt->fetchColumn();
 
 } catch (PDOException $e) {
     error_log('Cart count error: ' . $e->getMessage());
@@ -129,6 +136,7 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -457,25 +465,32 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
             }
         }
     </style>
+
 </head>
 
 <body>
 
     <header>
 
-        <a href="../home/Home.php" class="logo">Giftly.</a>
+        <a href="<?= $baseUrl ?>/pages/home/home.php" class="logo">
+            Giftly.
+        </a>
 
         <nav>
 
-            <a href="../home/Home.php" class="nav-button">Home</a>
+            <a href="<?= $baseUrl ?>/pages/home/home.php" class="nav-button">
+                Home
+            </a>
 
-            <a href="gifts.php" class="nav-button">Available Gifts</a>
+            <a href="<?= $baseUrl ?>/pages/shop/gifts.php" class="nav-button">
+                Available Gifts
+            </a>
 
-            <a href="../../gift_agent/gift_finder.php" class="nav-button">
+            <a href="<?= $baseUrl ?>/gift_agent/gift_finder.php" class="nav-button">
                 Gift Finder
             </a>
 
-            <a href="../cart/cart.php" class="nav-button">
+            <a href="<?= $baseUrl ?>/pages/cart/cart.php" class="nav-button">
                 My Cart (<?= (int) $cartCount ?>)
             </a>
 
@@ -496,17 +511,17 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
 
             <?php elseif ($isAdmin): ?>
 
-                <a href="../../admin/products.php" class="nav-button">
+                <a href="<?= $baseUrl ?>/admin/products.php" class="nav-button">
                     Manage Products
                 </a>
 
             <?php else: ?>
 
-                <a href="../login/Login.php" class="nav-button">
+                <a href="<?= $baseUrl ?>/pages/login/login.php" class="nav-button">
                     Login
                 </a>
 
-                <a href="../register/register.php" class="nav-button">
+                <a href="<?= $baseUrl ?>/pages/register/register.php" class="nav-button">
                     Register
                 </a>
 
@@ -537,11 +552,13 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
                 <?php foreach ($adminProducts as $product): ?>
 
                     <?php
+
                     $hasPrice = $product['price'] !== null
                         && $product['price'] !== ''
                         && (float) $product['price'] > 0;
 
                     $hasStock = (int) $product['stock_quantity'] > 0;
+
                     ?>
 
                     <article class="gift-card">
@@ -553,7 +570,7 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
 
                         <?php else: ?>
 
-                            <img src="" alt="No product image available">
+                            <img src="<?= $baseUrl ?>/assets/images/no-image.png" alt="No product image available">
 
                         <?php endif; ?>
 
@@ -599,7 +616,7 @@ $customerName = $_SESSION['customer_name'] ?? 'Customer';
 
                             <?php else: ?>
 
-                                <form method="POST" action="../cart/cart_action.php">
+                                <form method="POST" action="<?= $baseUrl ?>/pages/cart/cart_action.php">
 
                                     <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
 

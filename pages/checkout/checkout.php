@@ -81,15 +81,45 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && !isset($_POST['selection_action'])
 ) {
+    $paymentMethod = $_POST['payment_method'] ?? '';
+
+    // Create the order first.
     $result = $checkoutController->placeOrder(
         $_POST,
         $_POST['csrf_token'] ?? ''
     );
 
     if (is_array($result) && !empty($result['success'])) {
+
+        $orderId = (int) $result['order_id'];
+
+        // Cash on Delivery does not need Paystack.
+        if ($paymentMethod === 'cash_on_delivery') {
+            header(
+                'Location: order_confirmation.php?order_id=' . $orderId
+            );
+            exit;
+        }
+
+        // Card and Mobile Money both use Paystack.
+        $paymentResult = $checkoutController->initializePaystackPayment($orderId);
+
+        if (
+            is_array($paymentResult)
+            && !empty($paymentResult['success'])
+            && !empty($paymentResult['authorization_url'])
+        ) {
+            header('Location: ' . $paymentResult['authorization_url']);
+            exit;
+        }
+
+        // Keep the order pending so the customer can retry payment.
+        $_SESSION['checkout_error'] = is_array($paymentResult)
+            ? ($paymentResult['message'] ?? 'Could not start payment. Please try again.')
+            : 'Could not start payment. Please try again.';
+
         header(
-            'Location: order_confirmation.php?order_id='
-            . (int) $result['order_id']
+            'Location: order_confirmation.php?order_id=' . $orderId
         );
         exit;
     }
@@ -117,6 +147,7 @@ $totalAmount = $subtotal + $deliveryFee;
 
 $isLoggedIn = !empty($_SESSION['customer_id']);
 
+
 $selectedIds = $_SESSION['selected_cart_item_ids'] ?? [];
 
 if (
@@ -138,7 +169,8 @@ if (
 
     <title>Checkout | Giftly</title>
 
-    <link rel="stylesheet" href="/Giftly/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="/~fatma.abdourahmane/Giftly/assets/css/style.css?v=5">
+    <link rel="stylesheet" href="/~fatma.abdourahmane/Giftly/assets/css/checkout.css?v=1">
 
     <style>
         .checkout-item {
@@ -232,7 +264,7 @@ if (
                 Sign in or create an account to continue.
             </p>
 
-            <a href="../login/Login.php">Sign In</a>
+            <a href="../login/login.php">Sign In</a>
 
             <a href="../register/register.php">Create Account</a>
 
@@ -386,8 +418,7 @@ if (
                         <h2>Payment Method</h2>
 
                         <p>
-                            Payment processing will be available later.
-                            Your payment will remain pending for now.
+                            Choose how you would like to pay securely through Paystack.
                         </p>
 
                         <label class="option">

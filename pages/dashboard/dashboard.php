@@ -1,34 +1,41 @@
 <?php
-session_start();
+
+require_once __DIR__ . '/../../includes/session.php';
 
 if (!isset($_SESSION['admin_id'])) {
-    header('Location: login.php');
+    header('Location: /~fatma.abdourahmane/Giftly/pages/login/login.php');
     exit;
 }
+
 require_once __DIR__ . '/../../config/db.php';
 
+// Hosting base URL
+$baseUrl = '/~fatma.abdourahmane/Giftly';
+
+// Product statistics
 $productCount = (int) $pdo->query(
-    "SELECT COUNT(*) FROM products"
+    "SELECT COUNT(*) FROM giftly_products"
 )->fetchColumn();
 
 $activeCount = (int) $pdo->query(
-    "SELECT COUNT(*) FROM products WHERE is_active = 1"
+    "SELECT COUNT(*) FROM giftly_products WHERE is_active = 1"
 )->fetchColumn();
 
-/* Customer statistics */
-
+// Customer statistics
 $customerCount = (int) $pdo->query(
-    "SELECT COUNT(*) FROM users WHERE role_id = 1"
+    "SELECT COUNT(*) FROM giftly_users WHERE role_id = 1"
 )->fetchColumn();
 
 $activeCustomerCount = (int) $pdo->query(
-    "SELECT COUNT(*) FROM users WHERE role_id = 1 AND is_active = 1"
+    "SELECT COUNT(*) FROM giftly_users
+     WHERE role_id = 1 AND is_active = 1"
 )->fetchColumn();
 
 function h($value)
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -37,8 +44,10 @@ function h($value)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>Giftly Admin Dashboard</title>
-    <link rel="stylesheet" href="../../assets/css/profile-sidebar.css">
+
+    <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/profile-sidebar.css">
 
     <style>
         * {
@@ -203,13 +212,13 @@ function h($value)
 
             <span>|</span>
 
-            <a class="view-store" href="../home/Home.php">
+            <a class="view-store" href="<?= $baseUrl ?>/pages/home/home.php">
                 View Store
             </a>
 
             <span>|</span>
 
-            <a class="logout" href="../../logout.php">
+            <a class="logout" href="<?= $baseUrl ?>/logout.php">
                 Logout
             </a>
 
@@ -249,13 +258,14 @@ function h($value)
 
         <div class="actions">
 
-            <a class="button" href="../../admin/products.php">
+            <a class="button" href="<?= $baseUrl ?>/admin/products.php">
                 Manage Products
             </a>
 
-            <a class="button" href="../../admin/customers.php">
+            <a class="button" href="<?= $baseUrl ?>/admin/customers.php">
                 Manage Customers
             </a>
+
         </div>
 
     </main>

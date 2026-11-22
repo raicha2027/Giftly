@@ -40,7 +40,7 @@ class AuthController
 
         try {
             $check = $pdo->prepare(
-                "SELECT user_id FROM users WHERE email = ? LIMIT 1"
+                "SELECT user_id FROM giftly_users WHERE email = ? LIMIT 1"
             );
 
             $check->execute([$email]);
@@ -55,7 +55,7 @@ class AuthController
             );
 
             $stmt = $pdo->prepare(
-                "INSERT INTO users
+                "INSERT INTO giftly_users
                 (role_id, first_name, last_name, email, phone, password_hash, is_active)
                 VALUES (?, ?, ?, ?, ?, ?, 1)"
             );

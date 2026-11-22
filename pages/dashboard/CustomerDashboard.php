@@ -57,7 +57,7 @@ function formatStatus($status)
 
             <nav class="sidebar-navigation">
 
-                <a href="../home/Home.php" class="nav-link">
+                <a href="../home/home.php" class="nav-link">
                     <span class="nav-icon">⌂</span>
                     <span>Home</span>
                 </a>

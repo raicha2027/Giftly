@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare(
         "SELECT user_id, role_id, first_name, last_name,
                 email, password_hash
-         FROM users
+         FROM giftly_users
          WHERE email = ?
          AND is_active = 1
          LIMIT 1"
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['customer_name'] =
             $user['first_name'] . ' ' . $user['last_name'];
 
-        header('Location: ../home/Home.php');
+        header('Location: ../home/home.php');
         exit();
 
     } else {
@@ -195,10 +195,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .windchimes {
             position: absolute !important;
-            top: -5px !important;
-            right: -300px !important;
-            width: 65% !important;
-            height: 48% !important;
+            top: -30px !important;
+            right: -150px !important;
+            width: 200% !important;
+            height: 42% !important;
             max-width: none !important;
             object-fit: contain !important;
             object-position: right top !important;
@@ -213,10 +213,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .gift-boxes {
             position: absolute !important;
-            right: -310px !important;
-            bottom: -30px !important;
-            width: 75% !important;
-            height: 55% !important;
+            right: -200px !important;
+            bottom: -20px !important;
+            width: 100% !important;
+            height: 48% !important;
             display: flex !important;
             justify-content: flex-end !important;
             align-items: flex-end !important;
@@ -227,8 +227,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .gift-boxes img {
             display: block !important;
-            width: 100% !important;
-            max-width: none !important;
+            width: 300% !important;
+            max-width: 100% !important;
             height: 100% !important;
             object-fit: contain !important;
             object-position: right bottom !important;

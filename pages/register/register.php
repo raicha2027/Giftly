@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['success_message'] =
             'Your account has been created successfully. Please log in.';
 
-        header('Location: ../login/Login.php');
+        header('Location: ../login/login.php');
         exit();
     }
 
@@ -425,10 +425,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <p class="login-text">
                         Already have an account?
-                        <a href="../login/Login.php">Log in</a>
+                        <a href="../login/login.php">Log in</a>
                     </p>
 
-                    <a href="../home/Home.php" class="back-home">
+                    <a href="../home/home.php" class="back-home">
                         Back to Home
                     </a>
 

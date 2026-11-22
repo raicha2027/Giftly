@@ -15,7 +15,7 @@ function formatMoney($amount)
 
 // Make sure the customer is logged in.
 if (empty($_SESSION['customer_id'])) {
-    header('Location: ../auth/login.php');
+    header('Location: ../login/login.php');
     exit;
 }
 
@@ -64,12 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
                 o.order_status,
                 (
                     SELECT p.payment_status
-                    FROM payments p
+                    FROM giftly_payments p
                     WHERE p.order_id = o.order_id
                     ORDER BY p.payment_id DESC
                     LIMIT 1
                 ) AS payment_status
-            FROM orders o
+            FROM giftly_orders o
             WHERE o.order_id = ?
               AND o.user_id = ?
             FOR UPDATE
@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
             throw new Exception('This order can no longer be cancelled.');
         }
 
-        // Do not allow cancellation through this button after payment.
+        // Do not allow cancellation after successful payment.
         if (($currentOrder['payment_status'] ?? 'pending') === 'successful') {
             throw new Exception('This order has already been paid.');
         }
@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
         // Get the products and quantities from the order.
         $orderItemsStmt = $pdo->prepare("
             SELECT product_id, quantity
-            FROM order_items
+            FROM giftly_order_items
             WHERE order_id = ?
         ");
 
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
         // Find the customer's active cart.
         $cartStmt = $pdo->prepare("
             SELECT cart_id
-            FROM carts
+            FROM giftly_carts
             WHERE user_id = ?
               AND status = 'active'
             ORDER BY cart_id DESC
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
         if (!$cart) {
 
             $createCartStmt = $pdo->prepare("
-                INSERT INTO carts (user_id, session_id, status)
+                INSERT INTO giftly_carts (user_id, session_id, status)
                 VALUES (?, NULL, 'active')
             ");
 
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
         // Prepare statements to restore products.
         $findCartItemStmt = $pdo->prepare("
             SELECT cart_item_id, quantity
-            FROM cart_items
+            FROM giftly_cart_items
             WHERE cart_id = ?
               AND product_id = ?
             LIMIT 1
@@ -148,13 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
         ");
 
         $updateCartItemStmt = $pdo->prepare("
-            UPDATE cart_items
+            UPDATE giftly_cart_items
             SET quantity = quantity + ?
             WHERE cart_item_id = ?
         ");
 
         $insertCartItemStmt = $pdo->prepare("
-            INSERT INTO cart_items (cart_id, product_id, quantity)
+            INSERT INTO giftly_cart_items (cart_id, product_id, quantity)
             VALUES (?, ?, ?)
         ");
 
@@ -168,13 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
                 continue;
             }
 
-            // Check whether this product is already in the cart.
             $findCartItemStmt->execute([$cartId, $productId]);
             $existingItem = $findCartItemStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($existingItem) {
 
-                // Increase the existing quantity.
                 $updateCartItemStmt->execute([
                     $quantity,
                     (int) $existingItem['cart_item_id']
@@ -182,7 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
 
             } else {
 
-                // Add the product as a new cart item.
                 $insertCartItemStmt->execute([
                     $cartId,
                     $productId,
@@ -193,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
 
         // Mark the order as cancelled.
         $cancelStmt = $pdo->prepare("
-            UPDATE orders
+            UPDATE giftly_orders
             SET order_status = 'cancelled'
             WHERE order_id = ?
               AND user_id = ?
@@ -206,13 +203,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
             throw new Exception('Unable to cancel this order. Please try again.');
         }
 
-        // Save the cancellation and cart restoration together.
         $pdo->commit();
 
-        // Clear old checkout selections.
         unset($_SESSION['selected_cart_item_ids']);
 
-        // Send customer directly to the cart.
         header('Location: ../cart/cart.php?cancelled=1');
         exit;
 
@@ -237,16 +231,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_order'])) {
 
 /*
 |--------------------------------------------------------------------------
-| DISPLAY CANCELLATION ERROR MESSAGE
+| DISPLAY ERROR MESSAGES
 |--------------------------------------------------------------------------
 */
 
 $cancelMessage = $_SESSION['cancel_message'] ?? '';
 $cancelMessageType = $_SESSION['cancel_message_type'] ?? '';
+$checkoutError = $_SESSION['checkout_error'] ?? '';
 
 unset(
     $_SESSION['cancel_message'],
-    $_SESSION['cancel_message_type']
+    $_SESSION['cancel_message_type'],
+    $_SESSION['checkout_error']
 );
 
 /*
@@ -275,11 +271,11 @@ try {
             o.placed_at,
             p.payment_method,
             p.payment_status
-        FROM orders o
-        LEFT JOIN payments p
+        FROM giftly_orders o
+        LEFT JOIN giftly_payments p
             ON p.payment_id = (
                 SELECT MAX(latest_payment.payment_id)
-                FROM payments latest_payment
+                FROM giftly_payments latest_payment
                 WHERE latest_payment.order_id = o.order_id
             )
         WHERE o.order_id = ?
@@ -307,7 +303,7 @@ try {
             unit_price,
             quantity,
             line_total
-        FROM order_items
+        FROM giftly_order_items
         WHERE order_id = ?
         ORDER BY order_item_id ASC
     ");
@@ -351,6 +347,17 @@ $canCancel = (
     && ($order['payment_status'] ?? 'pending') !== 'successful'
 );
 
+// Allow payment retry only for pending card or Mobile Money orders.
+$canRetryPayment = (
+    $order['order_status'] === 'pending'
+    && ($order['payment_status'] ?? 'pending') !== 'successful'
+    && in_array(
+        $order['payment_method'] ?? '',
+        ['card', 'mobile_money'],
+        true
+    )
+);
+
 ?>
 
 <!DOCTYPE html>
@@ -363,11 +370,9 @@ $canCancel = (
 
     <title>Order Confirmation | Giftly</title>
 
-    <link rel="stylesheet" href="/Giftly/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="/~fatma.abdourahmane/Giftly/assets/css/style.css?v=6">
 
     <style>
-        /* GIFTLY ORDER CONFIRMATION */
-
         .receipt-page {
             background: #faf7f5;
             min-height: 100vh;
@@ -585,7 +590,6 @@ $canCancel = (
         }
 
         @media (max-width: 600px) {
-
             .receipt-page {
                 padding: 20px 12px;
             }
@@ -613,7 +617,6 @@ $canCancel = (
         }
 
         @media print {
-
             body {
                 background: #fff !important;
             }
@@ -652,8 +655,6 @@ $canCancel = (
 
         <div class="receipt-container">
 
-            <!-- RECEIPT HEADER -->
-
             <section class="receipt-header">
 
                 <h1>Thank You for Your Order!</h1>
@@ -664,8 +665,6 @@ $canCancel = (
 
             <section class="receipt-content">
 
-                <!-- CANCELLATION ERROR MESSAGE -->
-
                 <?php if ($cancelMessage): ?>
 
                     <div class="receipt-message <?php echo e($cancelMessageType); ?>">
@@ -674,7 +673,13 @@ $canCancel = (
 
                 <?php endif; ?>
 
-                <!-- ORDER INFORMATION -->
+                <?php if ($checkoutError): ?>
+
+                    <div class="receipt-message error">
+                        <?php echo e($checkoutError); ?>
+                    </div>
+
+                <?php endif; ?>
 
                 <div class="receipt-section">
 
@@ -683,50 +688,36 @@ $canCancel = (
                     <div class="receipt-info-grid">
 
                         <div class="receipt-info">
-
                             <span>Order Number</span>
-
                             <strong class="receipt-order-number">
                                 <?php echo e($order['order_number']); ?>
                             </strong>
-
                         </div>
 
                         <div class="receipt-info">
-
                             <span>Order Date</span>
-
                             <strong>
                                 <?php echo e(date('d M Y, h:i A', strtotime($order['placed_at']))); ?>
                             </strong>
-
                         </div>
 
                         <div class="receipt-info">
-
                             <span>Order Status</span>
-
                             <strong class="receipt-status">
                                 <?php echo e($orderStatus); ?>
                             </strong>
-
                         </div>
 
                         <div class="receipt-info">
-
                             <span>Payment Status</span>
-
                             <strong class="receipt-status">
                                 <?php echo e($paymentStatus); ?>
                             </strong>
-
                         </div>
 
                     </div>
 
                 </div>
-
-                <!-- RECIPIENT INFORMATION -->
 
                 <div class="receipt-section">
 
@@ -735,41 +726,30 @@ $canCancel = (
                     <div class="receipt-info-grid">
 
                         <div class="receipt-info">
-
                             <span>Recipient Name</span>
-
                             <strong>
                                 <?php echo e($order['recipient_name']); ?>
                             </strong>
-
                         </div>
 
                         <div class="receipt-info">
-
                             <span>Contact Phone</span>
-
                             <strong>
                                 <?php echo e($order['contact_phone']); ?>
                             </strong>
-
                         </div>
 
                         <div class="receipt-info">
-
                             <span>Delivery Method</span>
-
                             <strong>
                                 <?php echo e($deliveryMethod); ?>
                             </strong>
-
                         </div>
 
                         <?php if ($order['delivery_method'] === 'delivery'): ?>
 
                             <div class="receipt-info">
-
                                 <span>Delivery Address</span>
-
                                 <strong>
                                     <?php echo e($order['delivery_address']); ?>
 
@@ -777,7 +757,6 @@ $canCancel = (
                                         , <?php echo e($order['city']); ?>
                                     <?php endif; ?>
                                 </strong>
-
                             </div>
 
                         <?php endif; ?>
@@ -787,13 +766,10 @@ $canCancel = (
                     <?php if (!empty($order['delivery_notes'])): ?>
 
                         <div class="receipt-info">
-
                             <span>Delivery Instructions</span>
-
                             <strong>
                                 <?php echo e($order['delivery_notes']); ?>
                             </strong>
-
                         </div>
 
                     <?php endif; ?>
@@ -801,20 +777,15 @@ $canCancel = (
                     <?php if (!empty($order['gift_message'])): ?>
 
                         <div class="receipt-info">
-
                             <span>Gift Message</span>
-
                             <strong>
                                 <?php echo e($order['gift_message']); ?>
                             </strong>
-
                         </div>
 
                     <?php endif; ?>
 
                 </div>
-
-                <!-- ORDERED GIFTS -->
 
                 <div class="receipt-section">
 
@@ -831,14 +802,12 @@ $canCancel = (
                                 </div>
 
                                 <div class="receipt-item-details">
-
                                     Quantity:
                                     <?php echo (int) $item['quantity']; ?>
 
                                     ×
 
                                     <?php echo formatMoney($item['unit_price']); ?>
-
                                 </div>
 
                             </div>
@@ -853,97 +822,75 @@ $canCancel = (
 
                 </div>
 
-                <!-- PAYMENT SUMMARY -->
-
                 <div class="receipt-section">
 
                     <h2>Payment Summary</h2>
 
                     <div class="receipt-total-row">
-
                         <span>Subtotal</span>
-
                         <strong>
                             <?php echo formatMoney($order['subtotal']); ?>
                         </strong>
-
                     </div>
 
                     <div class="receipt-total-row">
-
                         <span>Delivery Fee</span>
-
                         <strong>
                             <?php echo formatMoney($order['delivery_fee']); ?>
                         </strong>
-
                     </div>
 
                     <div class="receipt-total-row receipt-grand-total">
-
                         <span>Total</span>
-
                         <strong>
                             <?php echo formatMoney($order['total_amount']); ?>
                         </strong>
-
                     </div>
 
                     <div class="receipt-info" style="margin-top: 18px;">
-
                         <span>Payment Method</span>
-
                         <strong>
                             <?php echo e($paymentMethod); ?>
                         </strong>
-
                     </div>
 
                 </div>
 
-                <!-- PAYMENT / CANCELLATION NOTICE -->
-
                 <?php if ($order['order_status'] === 'cancelled'): ?>
 
                     <div class="receipt-message error">
-
                         <strong>Order Cancelled</strong><br>
-
                         This order has been cancelled.
-
                     </div>
 
                 <?php elseif (($order['payment_status'] ?? 'pending') !== 'successful'): ?>
 
                     <div class="receipt-note">
-
-                        <strong>Payment Information</strong><br>
-
-                        Your order has been recorded successfully.
-                        Payment processing is not available yet, so your payment
-                        status remains pending. This confirmation does not mean
-                        that payment has been received.
-
+                        <strong>Payment Pending</strong><br>
+                        Your order has been recorded, but we have not yet
+                        confirmed your payment. Please complete your payment
+                        to proceed with your order.
                     </div>
 
                 <?php endif; ?>
 
-                <!-- ACTION BUTTONS -->
-
                 <div class="receipt-actions">
 
                     <button type="button" class="receipt-button receipt-primary" onclick="window.print()">
-
                         Print Receipt
-
                     </button>
 
                     <a href="../shop/gifts.php" class="receipt-button receipt-secondary">
-
                         Continue Shopping
-
                     </a>
 
+                    <?php if ($canRetryPayment): ?>
+
+                        <a href="payment.php?order_id=<?php echo (int) $orderId; ?>" class="receipt-button receipt-primary">
+                            Retry Payment
+                        </a>
+
+                    <?php endif; ?>
 
                     <?php if ($canCancel): ?>
 
@@ -953,9 +900,7 @@ $canCancel = (
                             <input type="hidden" name="csrf_token" value="<?php echo e($_SESSION['csrf_token']); ?>">
 
                             <button type="submit" name="cancel_order" value="1" class="receipt-button receipt-cancel">
-
                                 Cancel Order
-
                             </button>
 
                         </form>
@@ -965,8 +910,6 @@ $canCancel = (
                 </div>
 
             </section>
-
-
 
         </div>
 

@@ -23,3 +23,7 @@ Thumbs.db
 # Local database credentials
 config/db.php
 config/database.php
+
+# Sensitive configuration and setup files
+config/payment.php
+create_accounts_once.php
